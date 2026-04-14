@@ -9,6 +9,18 @@ const { emailQueue } = require('./queues/emailQueue');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Env Pre-flight check
+const requiredEnv = ['MONGO_URI', 'BREVO_API_KEY', 'EMAIL_USER', 'ADMIN_EMAIL'];
+const missingEnv = requiredEnv.filter(key => !process.env[key]);
+
+if (missingEnv.length > 0) {
+  logger.error(`❌ CRITICAL: Missing required environment variables: ${missingEnv.join(', ')}`);
+  if (process.env.NODE_ENV === 'production') {
+    logger.error('App will not start without these variables. Please check your Dashboard settings.');
+    process.exit(1);
+  }
+}
+
 // Security Middlewares
 app.set('trust proxy', 1);
 app.use(helmetMiddleware);

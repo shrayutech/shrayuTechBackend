@@ -4,9 +4,10 @@ const logger = require('../utils/logger');
 const { sendAdminNotification, sendAutoReply } = require('../services/emailService');
 
 // Redis configuration
-const redisOptions = {
+const REDIS_URL = process.env.REDIS_URL || process.env.REDIS_PUBLIC_URL;
+const redisOptions = REDIS_URL ? REDIS_URL : {
   host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
+  port: parseInt(process.env.REDIS_PORT) || 6379,
   maxRetriesPerRequest: null,
   enableOfflineQueue: false,
   connectTimeout: 5000,
