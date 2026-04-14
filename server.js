@@ -1,10 +1,12 @@
 require('dotenv').config();
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 const express = require('express');
 const mongoose = require('mongoose');
-const { helmetMiddleware, corsMiddleware } = require('./middleware/security');
-const { globalErrorHandler } = require('./middleware/errorHandler');
-const logger = require('./utils/logger');
-const { emailQueue } = require('./queues/emailQueue');
+const { helmetMiddleware, corsMiddleware } = require('./src/middleware/security');
+const { globalErrorHandler } = require('./src/middleware/errorHandler');
+const logger = require('./src/utils/logger');
+const { emailQueue } = require('./src/queues/emailQueue');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,9 +30,9 @@ app.use(corsMiddleware);
 app.use(express.json({ limit: '10kb' }));
 
 // Routes Import
-const serviceRoutes = require('./routes/service.route');
-const productRoutes = require('./routes/product.route');
-const contactRoutes = require('./routes/contact.route');
+const serviceRoutes = require('./src/routes/service.route');
+const productRoutes = require('./src/routes/product.route');
+const contactRoutes = require('./src/routes/contact.route');
 
 // API Routes
 app.use('/api/services', serviceRoutes);
@@ -52,7 +54,7 @@ app.use(globalErrorHandler);
 
 // Database connection & Server Start
 if (process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
+  mongoose.connect(process.env.MONGO_URI, { family: 4 })
     .then(() => {
       logger.info('Connected to MongoDB');
       app.listen(PORT, () => {
