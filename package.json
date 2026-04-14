@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "worker": "node src/workers/emailWorker.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
+    "axios": "^1.15.0",
+    "bull": "^4.16.5",
+    "bullmq": "^5.73.5",
+    "cors": "^2.8.6",
+    "dompurify": "^3.3.3",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.10.1",
+    "isomorphic-dompurify": "^3.8.0",
+    "joi": "^18.1.2",
+    "jsdom": "^29.0.2",
+    "mongoose": "^9.2.4",
+    "nodemailer": "^8.0.2",
+    "uuid": "^13.0.0",
+    "validator": "^13.15.35",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
