@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const Contact = require('../models/Contact.model');
 const { addEmailJob } = require('../queues/emailQueue');
 const logger = require('../utils/logger');
@@ -25,7 +25,7 @@ const verifyCaptcha = async (token) => {
 };
 
 exports.submitContact = async (req, res, next) => {
-  const requestId = uuidv4();
+  const requestId = crypto.randomUUID();
   req.requestId = requestId;
 
   try {
