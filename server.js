@@ -33,11 +33,13 @@ app.use(express.json({ limit: '10kb' }));
 const serviceRoutes = require('./src/routes/service.route');
 const productRoutes = require('./src/routes/product.route');
 const contactRoutes = require('./src/routes/contact.route');
+const testRoutes = require('./src/routes/test.route');
 
 // API Routes
 app.use('/api/services', serviceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/test', testRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -57,6 +59,7 @@ if (process.env.MONGO_URI) {
   mongoose.connect(process.env.MONGO_URI, { family: 4 })
     .then(() => {
       logger.info('Connected to MongoDB');
+      logger.info(`📧 Email setup: Sender=${process.env.EMAIL_USER}, Admin=${process.env.ADMIN_EMAIL}`);
       app.listen(PORT, () => {
         logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
         console.log(`🚀 API: http://localhost:${PORT}/api`);
