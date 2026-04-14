@@ -58,3 +58,6 @@ node_modules/
 # Temporary files
 tmp/
 temp/
+
+# Locking dependencies
+package-lock.json
