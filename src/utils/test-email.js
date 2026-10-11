@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('../config/env');
 const nodemailer = require('nodemailer');
 
 async function testEmail() {

@@ -12,6 +12,10 @@ const contactSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
   },
+  mobile: {
+    type: String,
+    trim: true,
+  },
   company: {
     type: String,
     default: '',
@@ -38,6 +42,14 @@ const contactSchema = new mongoose.Schema({
   requestId: {
     type: String,
     unique: true
+  },
+  adminEmailSent: {
+    type: Boolean,
+    default: false
+  },
+  autoReplySent: {
+    type: Boolean,
+    default: false
   },
   retries: {
     type: Number,

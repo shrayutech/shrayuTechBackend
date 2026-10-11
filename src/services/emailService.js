@@ -35,7 +35,7 @@ const sendEmail = async ({ to, subject, html, replyTo }) => {
 /**
  * Sends notification to Admin about a new contact inquiry
  */
-const sendAdminNotification = async ({ name, email, company, message }) => {
+const sendAdminNotification = async ({ name, email, mobile, company, message }) => {
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -72,6 +72,14 @@ const sendAdminNotification = async ({ name, email, company, message }) => {
                         <p style="margin:0;font-size:16px;color:#1e293b;"><a href="mailto:${email}" style="color:#2563eb;text-decoration:none;">${email}</a></p>
                       </td>
                     </tr>
+                    ${mobile ? `
+                    <tr>
+                      <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
+                        <p style="margin:0 0 3px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;">Mobile Number</p>
+                        <p style="margin:0;font-size:16px;color:#1e293b;"><a href="tel:${mobile.replace(/[^0-9+]/g, '')}" style="color:#2563eb;text-decoration:none;">${mobile}</a></p>
+                      </td>
+                    </tr>
+                    ` : ''}
                     ${company ? `
                     <tr>
                       <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
@@ -115,7 +123,9 @@ const sendAdminNotification = async ({ name, email, company, message }) => {
  * Sends auto-reply to the visitor
  */
 const sendAutoReply = async ({ name, email }) => {
-  const firstName = name.split(' ')[0];
+  // The auto-reply goes to an address the visitor typed, so keep their text in it to a short
+  // plain name; this stops the form being used to mail links or spam text to third parties.
+  const firstName = (name.split(' ')[0].replace(/&#x27;/g, "'").replace(/&[#\w]+;/g, '').replace(/[^\p{L}\p{M}'-]/gu, '').slice(0, 40)) || 'there';
   const html = `
     <!DOCTYPE html>
     <html lang="en">

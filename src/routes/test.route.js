@@ -1,14 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const { sendEmail } = require('../services/emailService');
+const validator = require('validator');
 const logger = require('../utils/logger');
+const { requireDiagnosticKey } = require('../middleware/security');
+
+// Outside development the diagnostics require the secret DIAGNOSTIC_KEY in the
+// `x-diagnostic-key` header; otherwise anyone could send email from this account to any address.
+router.use(requireDiagnosticKey);
 
 /**
  * Diagnostic endpoint to test direct email sending bypassing the queue
- * Access via: GET /api/test/email
+ * Access via: GET /api/test/email (outside development: send header x-diagnostic-key)
  */
 router.get('/email', async (req, res) => {
   const testEmail = req.query.to || process.env.ADMIN_EMAIL;
+  if (typeof testEmail !== 'string' || !validator.isEmail(testEmail)) {
+    return res.status(400).json({ success: false, error: 'Invalid "to" address.' });
+  }
   
   logger.info(`Running email diagnostic for: ${testEmail}`);
   

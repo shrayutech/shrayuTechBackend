@@ -1,12 +1,12 @@
-require('dotenv').config();
+require('./src/config/env');
 const dns = require('dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 const express = require('express');
 const mongoose = require('mongoose');
-const { helmetMiddleware, corsMiddleware } = require('./src/middleware/security');
+const { helmetMiddleware, corsMiddleware, apiRateLimiter } = require('./src/middleware/security');
 const { globalErrorHandler } = require('./src/middleware/errorHandler');
 const logger = require('./src/utils/logger');
-const { emailQueue } = require('./src/queues/emailQueue');
+const { enableInlineProcessing } = require('./src/queues/emailQueue');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,6 +36,7 @@ const contactRoutes = require('./src/routes/contact.route');
 const testRoutes = require('./src/routes/test.route');
 
 // API Routes
+app.use('/api', apiRateLimiter);
 app.use('/api/services', serviceRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/contact', contactRoutes);
@@ -43,7 +44,11 @@ app.use('/api/test', testRoutes);
 
 // Health Check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date() });
+  res.status(200).json({
+    success: true,
+    status: 'OK',
+    message: 'Backend is running'
+  });
 });
 
 // 404 Handler
@@ -60,9 +65,13 @@ if (process.env.MONGO_URI) {
     .then(() => {
       logger.info('Connected to MongoDB');
       logger.info(`📧 Email setup: Sender=${process.env.EMAIL_USER}, Admin=${process.env.ADMIN_EMAIL}`);
-      app.listen(PORT, () => {
+      // Deliver queued contact emails from this process unless a separate worker handles them
+      if (process.env.EMAIL_INLINE_WORKER !== 'false') {
+        enableInlineProcessing();
+      }
+      app.listen(PORT, "0.0.0.0", () => {
         logger.info(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
-        console.log(`🚀 API: http://localhost:${PORT}/api`);
+        console.log(`Server running on port ${PORT}`);
       });
     })
     .catch(err => {

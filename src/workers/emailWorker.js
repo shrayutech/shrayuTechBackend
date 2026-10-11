@@ -1,50 +1,39 @@
-require('dotenv').config();
-const { emailQueue } = require('../queues/emailQueue');
-const { sendAdminNotification, sendAutoReply } = require('../services/emailService');
-const Contact = require('../models/Contact.model');
+require('../config/env');
+const mongoose = require('mongoose');
+const { emailQueue, startEmailProcessing } = require('../queues/emailQueue');
 const logger = require('../utils/logger');
+
+// Optional standalone worker. The API server already processes the queue itself
+// (see enableInlineProcessing in server.js); run this to scale email delivery separately.
 
 if (!emailQueue) {
   logger.error('❌ Email Queue is not initialized. Worker cannot start.');
   process.exit(1);
 }
 
-// Process email jobs
-emailQueue.process(async (job) => {
-  const { contactId, name, email, company, message } = job.data;
-  
-  logger.info(`Processing email job ${job.id} for: ${email}`);
+if (!process.env.MONGO_URI) {
+  logger.error('❌ MONGO_URI is not set. Worker cannot update contact status.');
+  process.exit(1);
+}
 
-  try {
-    // 1. Send Admin Notification
-    await sendAdminNotification({ name, email, company, message });
-    
-    // 2. Send Auto-Reply to Visitor
-    await sendAutoReply({ name, email });
+// The worker updates Contact documents, so it needs its own database connection
+mongoose.connect(process.env.MONGO_URI, { family: 4 })
+  .then(() => {
+    logger.info('Worker connected to MongoDB');
+    startEmailProcessing();
+    logger.info('🚀 Email Worker started and listening for jobs...');
+  })
+  .catch((err) => {
+    logger.error('Worker failed to connect to MongoDB', err);
+    process.exit(1);
+  });
 
-    // 3. Update Database Status
-    if (contactId) {
-      await Contact.findByIdAndUpdate(contactId, {
-        status: 'sent',
-        emailStatus: 'sent'
-      });
-    }
+const shutdown = async () => {
+  logger.info('Email Worker shutting down...');
+  await emailQueue.close().catch(() => {});
+  await mongoose.disconnect().catch(() => {});
+  process.exit(0);
+};
 
-    logger.info(`✅ Successfully processed job ${job.id}`);
-  } catch (error) {
-    logger.error(`❌ Failed to process job ${job.id}: ${error.message}`);
-    
-    // Update database with error
-    if (contactId) {
-      await Contact.findByIdAndUpdate(contactId, {
-        status: 'failed',
-        emailStatus: 'failed',
-        errorMessage: error.message
-      });
-    }
-
-    throw error; // Re-throw to allow Bull to handle retries
-  }
-});
-
-logger.info('🚀 Email Worker started and listening for jobs...');
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);

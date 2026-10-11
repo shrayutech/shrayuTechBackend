@@ -41,14 +41,10 @@ build/Release
 node_modules/
 
 # Environment variables
+# All variants (.env.local, .env.development, .env.production, .env.staging, .env.example, ...)
 .env
-.env.test
-.env.production
-.env.local
-.env.*.local
-
-# Optional: but recommended if you are creating .env.example
-!.env.example
+.env.*
+*.env
 
 # IDE stuff
 .vscode/
