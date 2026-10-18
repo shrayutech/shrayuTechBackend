@@ -1,6 +1,10 @@
 const brevo = require('../config/brevo');
 const logger = require('../utils/logger');
 
+// Public website linked from emails; set SITE_URL per environment (no trailing slash).
+const SITE_URL = (process.env.SITE_URL || 'https://www.shrayutech.com').trim().replace(/\/+$/, '');
+const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '');
+
 /**
  * Core function to send email via Brevo SDK
  */
@@ -151,7 +155,7 @@ const sendAutoReply = async ({ name, email }) => {
               <!-- Brand -->
               <tr>
                 <td class="px" style="padding:0 8px 18px;">
-                  <a href="https://shrayutech.vercel.app" style="text-decoration:none;font-size:15px;font-weight:700;letter-spacing:2px;color:#1e3a8a;">SHRAYU<span style="color:#3b82f6;"> TECHNOLOGIES</span></a>
+                  <a href="${SITE_URL}" style="text-decoration:none;font-size:15px;font-weight:700;letter-spacing:2px;color:#1e3a8a;">SHRAYU<span style="color:#3b82f6;"> TECHNOLOGIES</span></a>
                 </td>
               </tr>
               <tr>
@@ -199,7 +203,7 @@ const sendAutoReply = async ({ name, email }) => {
                         <table role="presentation" cellpadding="0" cellspacing="0" class="btn">
                           <tr>
                             <td align="center" bgcolor="#2563eb" style="border-radius:10px;background:#2563eb;">
-                              <a href="https://shrayutech.vercel.app" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Explore our work &rarr;</a>
+                              <a href="${SITE_URL}/portfolio" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:10px;">Explore our work &rarr;</a>
                             </td>
                           </tr>
                         </table>
@@ -230,7 +234,7 @@ const sendAutoReply = async ({ name, email }) => {
                 <td class="px" align="center" style="padding:24px 8px 0;">
                   <p style="margin:0 0 6px;font-size:12px;line-height:18px;color:#94a3b8;">
                     You're receiving this because you submitted the contact form on
-                    <a href="https://shrayutech.vercel.app" style="color:#64748b;text-decoration:underline;">shrayutech.vercel.app</a>.
+                    <a href="${SITE_URL}" style="color:#64748b;text-decoration:underline;">${SITE_HOST}</a>.
                   </p>
                   <p style="margin:0;font-size:12px;color:#94a3b8;">&copy; ${new Date().getFullYear()} Shrayu Technologies. All rights reserved.</p>
                 </td>

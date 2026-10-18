@@ -29,8 +29,7 @@ const contactSchema = Joi.object({
     }),
   company: Joi.string().trim().max(100).pattern(NO_CONTROL_CHARS).allow('').label('Company')
     .messages({ 'string.pattern.base': '{{#label}} contains invalid characters' }),
-  message: Joi.string().trim().min(10).max(2000).required().label('Project brief'),
-  captchaToken: Joi.string().max(4096).required()
+  message: Joi.string().trim().min(10).max(2000).required().label('Project brief')
 }).messages({ 'object.unknown': '{{#label}} is not allowed' });
 
 /**

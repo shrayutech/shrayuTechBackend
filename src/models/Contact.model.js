@@ -38,7 +38,6 @@ const contactSchema = new mongoose.Schema({
   },
   ipAddress: String,
   userAgent: String,
-  captchaScore: Number,
   requestId: {
     type: String,
     unique: true
