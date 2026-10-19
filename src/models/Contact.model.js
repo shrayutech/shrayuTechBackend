@@ -36,6 +36,17 @@ const contactSchema = new mongoose.Schema({
     enum: ['pending', 'sent', 'failed'],
     default: 'pending'
   },
+  // Where the visit came from, when known (only Reddit is detected); no personal data
+  referral: {
+    type: new mongoose.Schema({
+      source: { type: String, enum: ['reddit'] },
+      detectedBy: { type: String, enum: ['utm', 'referrer'] },
+      campaign: String,
+      content: String,
+      landingPath: String
+    }, { _id: false }),
+    default: undefined
+  },
   ipAddress: String,
   userAgent: String,
   requestId: {

@@ -8,7 +8,7 @@ exports.submitContact = async (req, res, next) => {
   req.requestId = requestId;
 
   try {
-    const { name, email, mobile, company, message } = req.body;
+    const { name, email, mobile, company, message, referral } = req.body;
 
     // 1. Save Contact to Database with metadata
     const newContact = new Contact({
@@ -17,6 +17,7 @@ exports.submitContact = async (req, res, next) => {
       mobile,
       company: company || '',
       message,
+      referral,
       ipAddress: req.ip,
       userAgent: req.get('User-Agent'),
       requestId,
@@ -34,6 +35,7 @@ exports.submitContact = async (req, res, next) => {
       mobile,
       company,
       message,
+      referral,
       requestId
     });
 

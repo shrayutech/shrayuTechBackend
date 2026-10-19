@@ -7,11 +7,11 @@ const logger = require('../utils/logger');
  * Each step is recorded on the Contact document, so a retry skips emails that already
  * went out instead of sending duplicates.
  */
-const deliverContactEmails = async ({ contactId, name, email, mobile, company, message }) => {
+const deliverContactEmails = async ({ contactId, name, email, mobile, company, message, referral }) => {
   const contact = contactId ? await Contact.findById(contactId).lean() : null;
 
   if (!contact?.adminEmailSent) {
-    await sendAdminNotification({ name, email, mobile, company, message });
+    await sendAdminNotification({ name, email, mobile, company, message, referral });
     if (contact) await Contact.updateOne({ _id: contactId }, { adminEmailSent: true });
   }
 

@@ -9,6 +9,9 @@ const NO_CONTROL_CHARS = /^[^\x00-\x1F\x7F]*$/;
 const NAME_PATTERN = /^[\p{L}\p{M} .'-]+$/u;
 // Digits, spaces, +, - and (); 10-15 digits (E.164 allows at most 15)
 const MOBILE_PATTERN = /^\+?[0-9\s\-()]+$/;
+// Referral tags are short slugs and paths, so they need no escaping in the email template
+const TAG_PATTERN = /^[a-z0-9_-]{1,40}$/;
+const PATH_PATTERN = /^\/[\w\-/]{0,199}$/;
 
 /**
  * Joi schema for contact form validation (runs on the raw, unescaped input)
@@ -29,7 +32,15 @@ const contactSchema = Joi.object({
     }),
   company: Joi.string().trim().max(100).pattern(NO_CONTROL_CHARS).allow('').label('Company')
     .messages({ 'string.pattern.base': '{{#label}} contains invalid characters' }),
-  message: Joi.string().trim().min(10).max(2000).required().label('Project brief')
+  message: Joi.string().trim().min(10).max(2000).required().label('Project brief'),
+  // Optional: set by the site when the visit came from Reddit (frontend/src/utils/redditReferralTracker.js)
+  referral: Joi.object({
+    source: Joi.string().valid('reddit').required(),
+    detectedBy: Joi.string().valid('utm', 'referrer').required(),
+    campaign: Joi.string().pattern(TAG_PATTERN),
+    content: Joi.string().pattern(TAG_PATTERN),
+    landingPath: Joi.string().pattern(PATH_PATTERN)
+  }).label('Referral')
 }).messages({ 'object.unknown': '{{#label}} is not allowed' });
 
 /**

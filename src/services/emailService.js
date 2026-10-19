@@ -39,7 +39,20 @@ const sendEmail = async ({ to, subject, html, replyTo }) => {
 /**
  * Sends notification to Admin about a new contact inquiry
  */
-const sendAdminNotification = async ({ name, email, mobile, company, message }) => {
+// 'Reddit · r/webdev · campaign community · landed on /compare' (values are validated slugs/paths)
+const describeReferral = (referral) => {
+  if (!referral?.source) return '';
+  return [
+    referral.source === 'reddit' ? 'Reddit' : referral.source,
+    referral.content ? `r/${referral.content}` : null,
+    referral.campaign ? `campaign ${referral.campaign}` : null,
+    referral.landingPath ? `landed on ${referral.landingPath}` : null,
+    referral.detectedBy === 'referrer' ? '(from referrer)' : null
+  ].filter(Boolean).join(' · ');
+};
+
+const sendAdminNotification = async ({ name, email, mobile, company, message, referral }) => {
+  const source = describeReferral(referral);
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -89,6 +102,14 @@ const sendAdminNotification = async ({ name, email, mobile, company, message }) 
                       <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
                         <p style="margin:0 0 3px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;">Company</p>
                         <p style="margin:0;font-size:16px;color:#1e293b;">${company}</p>
+                      </td>
+                    </tr>
+                    ` : ''}
+                    ${source ? `
+                    <tr>
+                      <td style="padding:20px 24px;border-bottom:1px solid #e2e8f0;">
+                        <p style="margin:0 0 3px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px;">Source</p>
+                        <p style="margin:0;font-size:14px;color:#1e293b;">${source}</p>
                       </td>
                     </tr>
                     ` : ''}
@@ -222,7 +243,7 @@ const sendAutoReply = async ({ name, email }) => {
                       <td class="px" bgcolor="#f8fafc" style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:24px 48px;">
                         <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#0f172a;">Have more to share?</p>
                         <p style="margin:0;font-size:14px;line-height:22px;color:#64748b;">
-                          If you have any additional questions or information to share, simply reply to this email. You can also write to <a href="mailto:shrayutech@gmail.com" style="color:#2563eb;text-decoration:none;">shrayutech@gmail.com</a> or call <a href="tel:+917020041614" style="color:#2563eb;text-decoration:none;">+91 70200 41614</a>.
+                          If you have any additional questions or information to share, simply reply to this email. You can also write to <a href="mailto:contact@shrayutech.com" style="color:#2563eb;text-decoration:none;">contact@shrayutech.com</a> or call <a href="tel:+917020041614" style="color:#2563eb;text-decoration:none;">+91 70200 41614</a>.
                         </p>
                       </td>
                     </tr>
